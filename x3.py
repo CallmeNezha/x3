@@ -71,6 +71,9 @@ class x3_group:
         selects = [x.selectAll(selection)._group for x in self._group]
         selects = list(itertools.chain.from_iterable(selects))
         return x3_group(selects)
+
+    def parent(self, selection):
+        return x3_group([x.parent(selection) for x in self._group])
             
         
     def map(self, func):
