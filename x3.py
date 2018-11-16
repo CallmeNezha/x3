@@ -1,5 +1,4 @@
 import itertools
-import logging
 
 from lxml import etree
 
@@ -20,7 +19,7 @@ def xml2file(root, path):
         root = etree.XML(string, parser)
         output = str(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True).decode('utf-8'))
         file.write(output)
-        logging.info('xml written to file: ' + file.name)
+
         
 
 class x3:
