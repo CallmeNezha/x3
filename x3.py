@@ -22,18 +22,14 @@ def xml2file(root: etree._Element, path: str):
         output = str(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True).decode('utf-8'))
         file.write(output)
 
-class x3_group:
-    ...
-class x3:
-    ...
 class x3:
     def __init__(self, elem: etree._Element):
         self._elem = elem
     
-    def selectall(self, selection: Xpath) -> x3_group:
+    def selectall(self, selection: Xpath) -> 'x3_group':
         return x3_group([x3(x) for x in self._elem.xpath(selection)])
     
-    def select(self, selection: Xpath, default: Any = None) -> Optional[x3]:
+    def select(self, selection: Xpath, default: Any = None) -> Optional['x3']:
         child = next(iter(self._elem.xpath(selection)), default)
         if child is not None:
             return x3(child)
@@ -43,7 +39,7 @@ class x3:
     def attrib(self, key, default=None) -> Optional[str]:
         return self._elem.get(key, default)
 
-    def parent(self, selection: Optional[Xpath] = None) -> Optional[x3]:
+    def parent(self, selection: Optional[Xpath] = None) -> Optional['x3']:
         if selection is not None:
             return x3(next(self._elem.iterancestors(selection)))
         else:
@@ -67,6 +63,16 @@ class x3:
         else:
             raise TypeError("Key error")
 
+    def __hash__(self):
+        return hash(self._elem)
+    
+    def __eq__(self, other):
+        if other is None and self._elem is None:
+            return True
+        if type(other) is not type(self):
+            return False
+        return self._elem is other._elem
+
     @property
     def tag(self) -> str:
         return self._elem.tag
@@ -79,15 +85,15 @@ class x3_group:
         self._group = group
 
     #TODO: what if selection is None
-    def select(self, selection: Xpath) -> x3_group:
+    def select(self, selection: Xpath) -> 'x3_group':
         return x3_group([x.select(selection) for x in self._group])
 
-    def selectall(self, selection: Xpath) -> x3_group:
+    def selectall(self, selection: Xpath) -> 'x3_group':
         selects = [x.selectall(selection)._group for x in self._group]
         selects = list(itertools.chain.from_iterable(selects))
         return x3_group(selects)
 
-    def parent(self, selection) -> x3_group:
+    def parent(self, selection) -> 'x3_group':
         return x3_group([x.parent(selection) for x in self._group])
             
         
@@ -101,7 +107,7 @@ class x3_group:
         for x in self._group:
             x.remove()
 
-    def filter(self, func) -> x3_group:
+    def filter(self, func) -> 'x3_group':
         return x3_group([x3_elem for x3_elem in self._group if func(x3_elem)])
 
     def toarray(self) -> List[x3]:
