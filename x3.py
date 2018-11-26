@@ -1,6 +1,7 @@
 import itertools
-from typing import List, Optional, Tuple, Any, Union
+from typing import List, Optional, Tuple, Any, Union, cast
 from lxml import etree
+from collections import Sequence
 
 Xpath = str
 
@@ -22,7 +23,7 @@ def xml2file(root: etree._Element, path: str):
         output = str(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True).decode('utf-8'))
         file.write(output)
 
-class x3:
+class x3(Sequence):
     def __init__(self, elem: etree._Element):
         self._elem = elem
     
@@ -51,17 +52,28 @@ class x3:
     def getsourcefile(self) -> Tuple[str, int]:
         return (self._elem.base, self._elem.sourceline)
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key):
         if type(key) is str:
             return self._elem.attrib[key]
+        elif type(key) is int:
+            if key >= len(self):
+                raise IndexError("index out of range")
+            return x3(self._elem[key])
         else:
             raise TypeError("Key error")
 
-    def __setitem__(self, key:str , item: Any):
+    def __setitem__(self, key: Union[str, int], item: Any):
         if type(key) is str:
             self._elem.attrib[key] = item
+        elif type(key) is int:
+            if cast(int, key) >= len(self):
+                raise IndexError("index out of range")
+            self._elem[key] = item
         else:
             raise TypeError("Key error")
+
+    def __len__(self) -> int:
+        return len(self._elem)
 
     def __hash__(self):
         return hash(self._elem)
@@ -80,21 +92,23 @@ class x3:
 
 
 
-class x3_group:
+class x3_group(Sequence):
     def __init__(self, group: List[x3]):
-        self._group = group
+        self._group: List[x3] = group
 
     #TODO: what if selection is None
     def select(self, selection: Xpath) -> 'x3_group':
-        return x3_group([x.select(selection) for x in self._group])
+        group: List[x3] = list(filter(None.__ne__, iter(x.select(selection) for x in self._group)))
+        return x3_group(group)
 
     def selectall(self, selection: Xpath) -> 'x3_group':
         selects = [x.selectall(selection)._group for x in self._group]
-        selects = list(itertools.chain.from_iterable(selects))
-        return x3_group(selects)
+        selects_group = list(itertools.chain.from_iterable(selects))
+        return x3_group(selects_group)
 
     def parent(self, selection) -> 'x3_group':
-        return x3_group([x.parent(selection) for x in self._group])
+        group: List[x3] = list(filter(None.__ne__, iter(x.parent(selection) for x in self._group)))
+        return x3_group(group)
             
         
     def map(self, func) -> List[Any]:
@@ -116,7 +130,7 @@ class x3_group:
     def __len__(self) -> int:
         return len(self._group)
 
-    def __getitem__(self, index: int) -> x3:
+    def __getitem__(self, index):
         if type(index) is int:
             return self._group[index]
         else:
