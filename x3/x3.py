@@ -165,6 +165,9 @@ class x3(Sequence):
             return False
         return self._elem is other._elem
 
+    def __bool__(self):
+        return self._elem != None
+
     @property
     def tag(self) -> str:
         return self._elem.tag
@@ -215,4 +218,7 @@ class x3_group(Sequence):
             return self._group[index]
         else:
             raise TypeError("index error")
+
+    def __bool__(self):
+        return len(self._group) != 0
     
