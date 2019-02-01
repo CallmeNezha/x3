@@ -83,7 +83,8 @@ import itertools
 from typing import List, Optional, Tuple, Any, Union, cast
 from lxml import etree
 from collections import Sequence
-from util import xml2tree, xml2file, XmlFilePuller, XmlElemPuller
+from .util import xml2tree, xml2file, XmlFilePuller, XmlElemPuller
+import urllib
 
 
 Xpath = str
@@ -179,6 +180,7 @@ class x3(Sequence):
         # Remove the unpicklable entries.
         
         state["filename"], state["lineno"] = self.getsourcefile()
+        state["filename"] = urllib.parse.unquote(state["filename"])
         if sys.platform == "win32":
             state["filename"] = state["filename"][len("file:/"):]
         del state['_elem']
@@ -190,7 +192,6 @@ class x3(Sequence):
         # Restore the previously opened file's state. To do so, we need to
         # reopen it and read from it until the line count is restored.
         self._elem = g_elempuller.get(self.filename, self.lineno)
-
 
 
 
