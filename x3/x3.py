@@ -174,28 +174,6 @@ class x3(Sequence):
     def tag(self) -> str:
         return self._elem.tag
 
-    # for pickle serialize
-    def __getstate__(self):
-        # Copy the object's state from self.__dict__ which contains
-        # all our instance attributes. Always use the dict.copy()
-        # method to avoid modifying the original state.
-        state = self.__dict__.copy()
-        # Remove the unpicklable entries.
-        
-        state["filename"], state["lineno"] = self.getsourcefile()
-        state["filename"] = urllib.parse.unquote(state["filename"])
-        if sys.platform == "win32":
-            state["filename"] = state["filename"][len("file:/"):]
-        del state['_elem']
-        return state
-
-    def __setstate__(self, state):
-        # Restore instance attributes (i.e., filename and lineno).
-        self.__dict__.update(state)
-        # Restore the previously opened file's state. To do so, we need to
-        # reopen it and read from it until the line count is restored.
-        self._elem = g_elempuller.get(self.filename, self.lineno)
-
 
 
 class x3_group(Sequence):
