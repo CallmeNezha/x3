@@ -131,6 +131,9 @@ class x3(Sequence):
     def getsourcefile(self) -> Tuple[str, int]:
         return (self._elem.base, self._elem.sourceline)
 
+    def getroot(self) -> 'x3':
+        return x3(self._elem.getroottree().getroot())
+
     def __getitem__(self, key):
         if type(key) is str:
             return self._elem.attrib[key]
