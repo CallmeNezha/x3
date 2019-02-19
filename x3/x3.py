@@ -167,6 +167,14 @@ class x3(Sequence):
             return False
         return self._elem is other._elem
 
+    def __add__(self, x: Union['x3', 'x3_group']) -> 'x3_group':
+        if isinstance(x, x3):
+            return x3_group([self, x])
+        elif isinstance(x, x3_group):
+            return x3_group([self] + x._group)
+        else:
+            raise TypeError("x type error")
+
     def __bool__(self):
         return self._elem != None
 
@@ -222,3 +230,11 @@ class x3_group(Sequence):
 
     def __bool__(self):
         return len(self._group) != 0
+
+    def __add__(self, x: Union['x3', 'x3_group']) -> 'x3_group':
+        if isinstance(x, x3):
+            return x3_group(self._group + [x])
+        elif isinstance(x, x3_group):
+            return x3_group(self._group + x._group)
+        else:
+            raise TypeError("x type error")
