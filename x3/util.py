@@ -148,11 +148,12 @@ def xml2tree(path: str) -> etree._Element:
     return tree
 
 def xml2file(root: etree._Element, path: str):
-    with open(path, mode='w') as file:
-        parser = etree.XMLParser(remove_blank_text=True)
+    with open(path, mode='wb') as file:
+        parser = etree.XMLParser(encoding='utf-8',remove_blank_text=True)
         string = str(etree.tostring(root, pretty_print=True, encoding='unicode'))
+        string = string.encode('utf-8')
         root = etree.XML(string, parser)
-        output = str(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True).decode('utf-8'))
+        output = b"<?xml version=\"1.0\" encoding=\"utf-8\"?>" + b"\n" + etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
         file.write(output)
 
 class XmlFilePuller:
