@@ -129,7 +129,7 @@ class x3_group(Sequence):
         selects_group = list(itertools.chain.from_iterable(selects))
         return x3_group(selects_group)
 
-    def parent(self, selection) -> 'x3_group':
+    def parent(self, selection=None) -> 'x3_group':
         group: List[x3] = list(filter(None.__ne__, iter(x.parent(selection) for x in self._group)))
         return x3_group(group)
             
@@ -169,3 +169,9 @@ class x3_group(Sequence):
             return x3_group(self._group + x._group)
         else:
             raise TypeError("x type error")
+
+    def __str__(self):
+        return "<%s at %s>:\r\n%s" % (self.__class__.__name__, hex(id(self)), str(self._group))
+
+    def __repr__(self):
+        return str(self)
