@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyx3",
-    version="0.0.8",
+    version="0.0.9",
     author="ZIJIAN JIANG",
     author_email="jiangzijian77@gmail.com",
     description="x3 is a d3-like xml selector, mapper, operator.",
